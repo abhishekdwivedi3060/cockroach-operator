@@ -1,4 +1,4 @@
-# Copyright 2020 The Cockroach Authors
+# Copyright 2021 The Cockroach Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,23 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-filegroup(
-    name = "package-srcs",
-    srcs = glob(["**"]),
-    tags = ["automanaged"],
-    visibility = ["//visibility:private"],
-)
-
-filegroup(
-    name = "all-srcs",
-    srcs = [
-        ":package-srcs",
-        "//config/crd:all-srcs",
-        "//config/manifests:all-srcs",
-        "//config/samples:all-srcs",
-        "//config/scorecard:all-srcs",
-        "//config/webhook:all-srcs",
-    ],
-    tags = ["automanaged"],
-    visibility = ["//visibility:public"],
-)
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webhook-service
+spec:
+  ports:
+    - port: 443
+      targetPort: 9443
+  selector:
+    app: cockroach-operator

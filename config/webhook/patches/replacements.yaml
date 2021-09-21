@@ -15,5 +15,16 @@
 # This kustomization.yaml is not intended to be run by itself,
 # since it depends on service name and namespace that are out of this kustomize package.
 # It should be run by config/default
-resources:
-  - bases/crdb.cockroachlabs.com_crdbclusters.yaml
+source:
+  kind: Service
+  name: webhook-service
+  fieldPath: metadata.namespace
+targets:
+  - select:
+      kind: MutatingWebhookConfiguration
+    fieldPaths:
+      - webhooks.[name=mcrdbcluster.kb.io].clientConfig.service.namespace
+  - select:
+      kind: ValidatingWebhookConfiguration
+    fieldPaths:
+      - webhooks.[name=vcrdbcluster.kb.io].clientConfig.service.namespace

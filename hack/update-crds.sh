@@ -41,14 +41,25 @@ cd "${REPO_ROOT}"
 
 "$controllergen" \
   crd:trivialVersions=true \
-  rbac:roleName=cockroach-operator-role  webhook \
+  rbac:roleName=cockroach-operator-role webhook \
   paths="./..." output:crd:artifacts:config=config/crd/bases
 
-FILE_NAMES=(config/rbac/role.yaml config/crd/bases/crdb.cockroachlabs.com_crdbclusters.yaml)
+FILE_NAMES=(config/webhook/manifests.yaml config/rbac/role.yaml config/crd/bases/crdb.cockroachlabs.com_crdbclusters.yaml)
 
 for YAML in "${FILE_NAMES[@]}"
 do
    :
    cat "${REPO_ROOT}/hack/boilerplate/boilerplate.yaml.txt" "${REPO_ROOT}/${YAML}" > "${REPO_ROOT}/${YAML}.mod"
    mv "${REPO_ROOT}/${YAML}.mod" "${REPO_ROOT}/${YAML}"
-done 
+done
+
+fix_webhook_manifest() {
+  for file in config/webhook/manifests.yaml; do
+    local manifest="${REPO_ROOT}/${file}"
+    # strip out null creationTimestamp
+    sed '/creationTimestamp: null/d' "${manifest}" > "${manifest}.mod"
+    mv "${manifest}.mod" "${manifest}"
+  done
+}
+
+fix_webhook_manifest
